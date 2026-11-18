@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IMemPool.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of memory pool free-list management and chunk recycling.
+//          Inputs: Allocation requests and released block addresses.
+//          Outputs: Recycled block pointers.
+//          Algorithm: Singly linked free-list pop/push with zero runtime heap calls.
+// ==============================================================================
+
 #include "IMemPool.h"
 
 void Test_IMemPool(void)

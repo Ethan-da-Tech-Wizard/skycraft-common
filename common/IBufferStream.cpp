@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: IBufferStream.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of in-memory byte buffer read, write, and seek primitives.
+//          Inputs: Binary data buffers, byte offsets, and reallocation increments.
+//          Outputs: Copied memory slices and updated buffer positions.
+//          Algorithm: Fast memcpy-based stream cursor manipulation with amortized doubling.
+// ==============================================================================
+
 #include "IBufferStream.h"
 
+// ---------------------------------------------------------------------------
+// Constructor: Allocates initial heap storage or wraps user-supplied buffer
+// ---------------------------------------------------------------------------
 IBufferStream::IBufferStream()
 :streamBuf(NULL), flags(0)
 {
@@ -45,6 +58,9 @@ void IBufferStream::SetBuffer(void * buf, UInt64 inLength)
 	Rewind();
 }
 
+// ---------------------------------------------------------------------------
+// ReadBuf: Sequential memory copy from stream cursor into destination buffer
+// ---------------------------------------------------------------------------
 void IBufferStream::ReadBuf(void * buf, UInt32 inLength)
 {
 	memcpy(buf, &streamBuf[streamOffset], inLength);

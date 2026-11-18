@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IDebugLog.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of diagnostic log formatting, indentation stacks, and file sinks.
+//          Inputs: Variadic format strings, log level thresholds, and source names.
+//          Outputs: Buffered and auto-flushed text files on the local filesystem.
+//          Algorithm: Mutex-guarded vsnprintf formatting with timestamp prefixes.
+// ==============================================================================
+
 #include "common/IDebugLog.h"
 #include <share.h>
 #include "common/IFileStream.h"
@@ -31,6 +41,9 @@ IDebugLog::~IDebugLog()
 		fclose(logFile);
 }
 
+// ---------------------------------------------------------------------------
+// Open: Creates or appends to the target log file on disk
+// ---------------------------------------------------------------------------
 void IDebugLog::Open(const char * path)
 {
 	logFile = _fsopen(path, "w", _SH_DENYWR);
@@ -132,6 +145,9 @@ void IDebugLog::FormattedMessage(const char * fmt, va_list args)
 	Message(formatBuf);
 }
 
+// ---------------------------------------------------------------------------
+// Log: Formats log message, verifies severity threshold, and writes to disk
+// ---------------------------------------------------------------------------
 void IDebugLog::Log(LogLevel level, const char * fmt, va_list args)
 {
 	bool	log = (level <= logLevel);

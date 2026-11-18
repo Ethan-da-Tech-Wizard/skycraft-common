@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IErrors.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of Win32 FormatMessage translation and system error reporting.
+//          Inputs: System error integers and language environment settings.
+//          Outputs: Localized descriptive error strings.
+//          Algorithm: Win32 FormatMessage with FORMAT_MESSAGE_FROM_SYSTEM flags.
+// ==============================================================================
+
 #include "common/IErrors.h"
 #include "common/IDebugLog.h"
 #include <cstdlib>

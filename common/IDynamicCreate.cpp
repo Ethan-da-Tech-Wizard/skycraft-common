@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IDynamicCreate.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of dynamic object factory dispatch and class lookup maps.
+//          Inputs: String identifiers for registered runtime types.
+//          Outputs: Instantiated object pointers or null on unknown identifier.
+//          Algorithm: Hash map lookup against registered instantiation function pointers.
+// ==============================================================================
+
 #include "IDynamicCreate.h"
 
 #if ENABLE_IDYNAMICCREATE

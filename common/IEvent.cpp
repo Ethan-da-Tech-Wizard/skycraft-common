@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: IEvent.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of Win32 Event handle allocation, signaling, and timeouts.
+//          Inputs: Wait timeout durations in milliseconds.
+//          Outputs: Wait result statuses (WAIT_OBJECT_0, WAIT_TIMEOUT, WAIT_FAILED).
+//          Algorithm: Win32 WaitForSingleObject synchronization dispatch.
+// ==============================================================================
+
 #include "IEvent.h"
 
+// ---------------------------------------------------------------------------
+// Constructor: Invokes Win32 CreateEvent with specified reset mode
+// ---------------------------------------------------------------------------
 IEvent::IEvent()
 {
 	theEvent = CreateEvent(NULL, true, true, NULL);

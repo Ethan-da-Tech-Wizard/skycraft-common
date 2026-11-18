@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: IMutex.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Header for Win32 kernel mutex synchronization object wrapper.
+//          Inputs: Optional system-wide mutex name and ownership flags.
+//          Outputs: Inter-process mutual exclusion across loader and game instance.
+//          Architecture: Prevents multiple loader instances from injecting simultaneously.
+// ==============================================================================
+
 #pragma once
 
+// ---------------------------------------------------------------------------
+// IMutex: Win32 CreateMutex/WaitForSingleObject/ReleaseMutex encapsulation
+// ---------------------------------------------------------------------------
 class IMutex
 {
 	public:

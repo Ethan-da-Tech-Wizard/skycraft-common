@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: ISingleton.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Thread-safe generic Singleton template pattern specification.
+//          Inputs: Target class type parameter T.
+//          Outputs: Global singleton instance access pointer.
+//          Architecture: Standard access mechanism for central managers in SKSE64.
+// ==============================================================================
+
 #pragma once
 
 #include "common/IErrors.h"
@@ -11,6 +21,9 @@
  *	Singletons are useful when you have a class that will be instantiated once,
  *	like a global manager.
  */
+// ---------------------------------------------------------------------------
+// ISingleton: Thread-safe template providing static GetSingleton access
+// ---------------------------------------------------------------------------
 template <typename T>
 class ISingleton
 {

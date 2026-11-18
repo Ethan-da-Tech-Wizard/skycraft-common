@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IDynamicCreate.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Header for runtime class factory registration and dynamic object instantiation.
+//          Inputs: Class name identifiers and type creator function pointers.
+//          Outputs: Polymorphic base pointers to newly allocated instances.
+//          Architecture: Decoupled plugin architecture enabling dynamic class creation.
+// ==============================================================================
+
 #pragma once
 
 #include <map>

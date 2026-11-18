@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IRangeMap.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Memory address range mapping and interval tree container header.
+//          Inputs: Virtual memory start addresses, lengths, and associated payloads.
+//          Outputs: Fast interval lookup identifying memory regions for given pointers.
+//          Architecture: Manages hook branch trampolines and patch address reservations.
+// ==============================================================================
+
 #pragma once
 
 #include <map>
@@ -6,6 +16,9 @@
 // ### you can't create a range taking up the entire range of t_key
 // ### (could be done by switching from start/length -> start/end)
 template <typename t_key, typename t_data>
+// ---------------------------------------------------------------------------
+// IRangeMap: Disjoint interval map indexing memory address spans
+// ---------------------------------------------------------------------------
 class IRangeMap
 {
 public:

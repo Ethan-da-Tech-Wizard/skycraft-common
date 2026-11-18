@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: ICriticalSection.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Header specification for lightweight user-mode critical section synchronization.
+//          Inputs: Win32 CRITICAL_SECTION objects and thread acquisition requests.
+//          Outputs: Mutual exclusion guards preventing data races in multi-threaded runtime.
+//          Design Rationale: Ultra-fast spin-lock/wait hybrid for game thread safety.
+// ==============================================================================
+
 #pragma once
 
+// ---------------------------------------------------------------------------
+// ICriticalSection: RAII synchronization wrapper for Win32 CRITICAL_SECTION
+// ---------------------------------------------------------------------------
 class ICriticalSection
 {
 	public:

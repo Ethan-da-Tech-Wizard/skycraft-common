@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: IFIFO.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: First-in first-out circular queue data structure header for thread-safe messaging.
+//          Inputs: Generic element payloads and queue capacity parameters.
+//          Outputs: Enqueued/dequeued elements maintaining strict insertion ordering.
+//          Architecture: Work item dispatch queue between loader and game threads.
+// ==============================================================================
+
 #pragma once
 
+// ---------------------------------------------------------------------------
+// IFIFO: Ring buffer queue implementation for FIFO message buffering
+// ---------------------------------------------------------------------------
 class IFIFO
 {
 	public:

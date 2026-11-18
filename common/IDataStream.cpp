@@ -1,7 +1,20 @@
+// ==============================================================================
+// Program: IDataStream.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of fundamental stream helper methods and endian byte-swapping.
+//          Inputs: Multi-byte integers (16, 32, 64-bit) and floating point values.
+//          Outputs: Bit-reversed endian representations matching target file architectures.
+//          Algorithm: Byte-swapping intrinsics and sequential read loops.
+// ==============================================================================
+
 #include "IDataStream.h"
 
 /**** IDataStream *************************************************************/
 
+// ---------------------------------------------------------------------------
+// Constructor: Sets default byte order (little-endian for x86/x64) and offsets
+// ---------------------------------------------------------------------------
 IDataStream::IDataStream()
 :streamLength(0), streamOffset(0), swapBytes(false)
 {

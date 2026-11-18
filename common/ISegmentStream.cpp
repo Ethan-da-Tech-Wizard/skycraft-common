@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: ISegmentStream.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of bounded window stream reading, writing, and cursor mapping.
+//          Inputs: Relative segment offsets.
+//          Outputs: Clamped read/write byte counts forwarded to backing stream.
+//          Algorithm: Relative offset translation with boundary clamping.
+// ==============================================================================
+
 #include "common/ISegmentStream.h"
 
+// ---------------------------------------------------------------------------
+// Constructor: Binds to parent stream and defines valid window range
+// ---------------------------------------------------------------------------
 ISegmentStream::ISegmentStream()
 {
 	streamLength = 0;

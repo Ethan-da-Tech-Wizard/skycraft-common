@@ -1,7 +1,20 @@
+// ==============================================================================
+// Program: IThread.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Win32 thread management and execution lifecycle wrapper header.
+//          Inputs: Thread procedure entrypoints, parameter blocks, and stack sizes.
+//          Outputs: Thread handles, thread IDs, and thread termination status.
+//          Architecture: Spawns worker threads for asynchronous tasks and pipe listeners.
+// ==============================================================================
+
 #pragma once
 
 // TODO: I really don't like the interface for this
 
+// ---------------------------------------------------------------------------
+// IThread: RAII wrapper for Win32 CreateThread, ResumeThread, and WaitForSingleObject
+// ---------------------------------------------------------------------------
 class IThread
 {
 	public:

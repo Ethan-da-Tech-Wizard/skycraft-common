@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: ILinkedList.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Template implementation of intrusive singly and doubly linked list containers.
+//          Inputs: Node pointers and value items.
+//          Outputs: O(1) node insertion, deletion, and bidirectional traversal.
+//          Architecture: Zero-allocation node linking for SKSE64 internal hook chains.
+// ==============================================================================
+
 #pragma once
 
 // ILink members must be public

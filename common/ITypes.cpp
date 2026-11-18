@@ -1,3 +1,16 @@
+// ==============================================================================
+// Program: ITypes.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Runtime architecture and type size assertion validations.
+//          Inputs: Compile-time sizeof operators.
+//          Outputs: Verification that primitive types match expected binary bitwidths.
+//          Algorithm: Static compile-time and runtime size assertions.
+// ==============================================================================
+
+// ---------------------------------------------------------------------------
+// Binary structure alignment and type validation
+// ---------------------------------------------------------------------------
 #include "ITypes.h"
 
 Bitstring::Bitstring()

@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IThread.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of thread creation, execution dispatch, and thread joining.
+//          Inputs: Thread parameter payloads.
+//          Outputs: Active background thread executing target static method.
+//          Algorithm: Win32 CreateThread invocation with static wrapper trampoline.
+// ==============================================================================
+
 #include "IThread.h"
 
 IThread::IThread()

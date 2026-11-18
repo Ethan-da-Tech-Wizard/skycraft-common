@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: ITypes.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Standardized fixed-width integer and primitive type definitions.
+//          Inputs: Platform architecture target (x86_64).
+//          Outputs: Sized integer types (UInt8, SInt8, UInt16, SInt16, UInt32, SInt32, UInt64, SInt64).
+//          Architecture: Guarantees exact binary memory layout matching game engine structs.
+// ==============================================================================
+
 #pragma once
 
 #include "common/IErrors.h"
@@ -5,6 +15,7 @@
 #pragma warning(disable: 4221)
 #include <cmath>
 
+// Fixed-width unsigned and signed 8-bit integer types
 typedef unsigned char		UInt8;		//!< An unsigned 8-bit integer value
 typedef unsigned short		UInt16;		//!< An unsigned 16-bit integer value
 typedef unsigned long		UInt32;		//!< An unsigned 32-bit integer value

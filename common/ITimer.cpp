@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: ITimer.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of high-resolution timing, frequency caching, and elapsed intervals.
+//          Inputs: QueryPerformanceFrequency calibration.
+//          Outputs: Precise delta time calculations.
+//          Algorithm: 64-bit integer timestamp subtraction divided by clock frequency.
+// ==============================================================================
+
 #include "ITimer.h"
 
 // QueryPerformanceCounter is very accurate, but hardware bugs can cause it to return inaccurate results
@@ -67,6 +77,9 @@ void ITimer::DeInit(void)
 	}
 }
 
+// ---------------------------------------------------------------------------
+// Start: Samples initial timestamp using Win32 QueryPerformanceCounter
+// ---------------------------------------------------------------------------
 void ITimer::Start(void)
 {
 	m_qpcBase = GetQPC();

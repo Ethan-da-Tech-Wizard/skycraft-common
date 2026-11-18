@@ -1,8 +1,21 @@
+// ==============================================================================
+// Program: IMemPool.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Fixed-size chunk memory pool allocator header for high-frequency allocations.
+//          Inputs: Block size and block count specifications.
+//          Outputs: Fast O(1) memory chunk pointers without heap lock contention.
+//          Architecture: Prevents CRT heap fragmentation during game frame updates.
+// ==============================================================================
+
 #pragma once
 
 #include "common/ICriticalSection.h"
 
 template <typename T, UInt32 size>
+// ---------------------------------------------------------------------------
+// IMemPool: Pre-allocated memory pool managing free-lists of fixed-size blocks
+// ---------------------------------------------------------------------------
 class IMemPool
 {
 public:

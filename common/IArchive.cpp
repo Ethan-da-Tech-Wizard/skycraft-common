@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IArchive.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of Bethesda Archive (BSA) asset decompression and file extraction.
+//          Inputs: Raw archive file handles and directory offset tables.
+//          Outputs: In-memory asset buffers and decompression status codes.
+//          Algorithm: Binary record traversal with zlib/LZ4 stream decompression.
+// ==============================================================================
+
 #include "IArchive.h"
 #include "IErrors.h"
 
@@ -40,6 +50,9 @@ void IArchive::iterator::PrevOfType(UInt32 typeID)
 		idx--;
 }
 
+// ---------------------------------------------------------------------------
+// Constructor: Initializes archive state, file handles, and buffer pointers
+// ---------------------------------------------------------------------------
 IArchive::IArchive()
 :theStream(NULL), entries(NULL), nameTable(NULL)
 {

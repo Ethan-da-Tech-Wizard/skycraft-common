@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: ITimer.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: High-resolution performance counter profiling timer header.
+//          Inputs: Hardware CPU clock cycles from QueryPerformanceCounter.
+//          Outputs: Elapsed time calculations in seconds, milliseconds, and microseconds.
+//          Architecture: Benchmark and frame-timing profiling for SKSE64 runtime.
+// ==============================================================================
+
 #pragma once
 
 #include "common/ITypes.h"
@@ -5,6 +15,9 @@
 /**
  *	A high-resolution timer.
  */
+// ---------------------------------------------------------------------------
+// ITimer: Win32 QueryPerformanceCounter wrapper measuring microsecond elapsed time
+// ---------------------------------------------------------------------------
 class ITimer
 {
 	public:

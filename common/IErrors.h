@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IErrors.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Win32 error code decoding and human-readable diagnostic message translation.
+//          Inputs: Win32 DWORD error codes (GetLastError) and subsystem IDs.
+//          Outputs: Formatted descriptive error strings and message boxes.
+//          Architecture: Loader error reporting for failed injection and missing symbols.
+// ==============================================================================
+
 #pragma once
 
 void _AssertionFailed(const char * file, unsigned long line, const char * desc);

@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: IMutex.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of Win32 mutex creation, acquisition timeout, and release.
+//          Inputs: Named strings and millisecond timeout limits.
+//          Outputs: Boolean acquisition success indicators.
+//          Algorithm: Win32 kernel dispatcher object wait routines.
+// ==============================================================================
+
 #include "IMutex.h"
 
+// ---------------------------------------------------------------------------
+// Constructor: Calls Win32 CreateMutex with optional system name
+// ---------------------------------------------------------------------------
 IMutex::IMutex()
 {
 	theMutex = CreateMutex(NULL, true, NULL);

@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IDataStream.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Abstract base class specification for all binary streaming I/O interfaces.
+//          Inputs: Typed data values, endianness flags, and stream buffers.
+//          Outputs: Big-endian/Little-endian converted values and byte counts.
+//          Architecture: Universal I/O foundation used across SKSE64 loader and game hooks.
+// ==============================================================================
+
 #pragma once
 
 #include "common/IErrors.h"
@@ -5,6 +15,9 @@
 /**
  *	An arbitrary data stream
  */
+// ---------------------------------------------------------------------------
+// IDataStream: Core streaming contract defining Read, Write, Seek, and Skip
+// ---------------------------------------------------------------------------
 class IDataStream
 {
 	public:

@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: IPipeServer.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Win32 Named Pipe server hosting header for IPC listener services.
+//          Inputs: Pipe namespace identifier and buffer dimensioning parameters.
+//          Outputs: Inbound client connections and dispatched worker threads.
+//          Architecture: Hosts telemetry and control pipe inside Skyrim SE process.
+// ==============================================================================
+
 #pragma once
 
+// ---------------------------------------------------------------------------
+// IPipeServer: Hosts named pipe instances and services client request loops
+// ---------------------------------------------------------------------------
 class IPipeServer
 {
 public:

@@ -1,7 +1,20 @@
+// ==============================================================================
+// Program: IEvent.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Win32 Event synchronization object encapsulation header.
+//          Inputs: Manual/auto reset flags, initial signaled state, and optional names.
+//          Outputs: Thread signaling, barrier synchronization, and wait completion.
+//          Architecture: Coordinates asynchronous loader injection and game threads.
+// ==============================================================================
+
 #pragma once
 
 #include "common/IInterlockedLong.h"
 
+// ---------------------------------------------------------------------------
+// IEvent: RAII wrapper around Win32 CreateEvent/SetEvent/ResetEvent
+// ---------------------------------------------------------------------------
 class IEvent
 {
 	public:

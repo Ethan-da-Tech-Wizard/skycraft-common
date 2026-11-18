@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: IFIFO.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of circular ring-buffer FIFO queue push and pop operations.
+//          Inputs: Raw data buffers and push/pop count specifications.
+//          Outputs: Transferred buffer bytes and wrap-around index updates.
+//          Algorithm: Modulo pointer arithmetic with atomic overflow checking.
+// ==============================================================================
+
 #include "IFIFO.h"
 
+// ---------------------------------------------------------------------------
+// Constructor: Allocates continuous ring memory buffer and resets head/tail
+// ---------------------------------------------------------------------------
 IFIFO::IFIFO(UInt32 length)
 {
 	fifoBuf = new UInt8[length];

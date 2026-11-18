@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IDebugLog.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Diagnostic tracing, multi-level event logging, and indentation framing header.
+//          Inputs: Formatted strings, variadic argument lists, and log level filters.
+//          Outputs: Synchronized thread-safe output stream to disk or console.
+//          Architecture: Foundation logging subsystem for SKSE64 native hook diagnostics.
+// ==============================================================================
+
 #pragma once
 
 #include <cstdarg>
@@ -8,6 +18,9 @@
  *	This class supports prefix blocks describing the source of the log event.
  *	It also allows logical blocks and outlining.\n
  */
+// ---------------------------------------------------------------------------
+// IDebugLog: Static logger providing hierarchical indented diagnostic output
+// ---------------------------------------------------------------------------
 class IDebugLog
 {
 	public:

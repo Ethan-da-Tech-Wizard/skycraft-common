@@ -1,6 +1,19 @@
+// ==============================================================================
+// Program: IDirectoryIterator.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of Win32 directory scanning and file metadata extraction.
+//          Inputs: Wildcard path specifications (e.g., Data/SKSE/Plugins/*.dll).
+//          Outputs: Sequential file name enumeration and directory status.
+//          Algorithm: Win32 FindFirstFile/FindNextFile cursor iteration.
+// ==============================================================================
+
 #include "IDirectoryIterator.h"
 #include <string>
 
+// ---------------------------------------------------------------------------
+// Constructor: Prepares iterator state and invalidates handle
+// ---------------------------------------------------------------------------
 IDirectoryIterator::IDirectoryIterator(const char * path, const char * match)
 :m_searchHandle(INVALID_HANDLE_VALUE), m_done(false)
 {

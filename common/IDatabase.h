@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IDatabase.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Header definition for persistent key-value and record-indexed data storage.
+//          Inputs: Record IDs, table definitions, and serialized field values.
+//          Outputs: Fast in-memory indexing and structured binary table files.
+//          Architecture: Local caching and state persistence for mod frameworks.
+// ==============================================================================
+
 #pragma once
 
 #include <map>
@@ -5,6 +15,9 @@
 #include "common/IFilestream.h"
 
 template <class DataType>
+// ---------------------------------------------------------------------------
+// IDatabase: Index-based record table storage and binary serialization manager
+// ---------------------------------------------------------------------------
 class IDatabase
 {
 	public:

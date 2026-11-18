@@ -1,6 +1,19 @@
+// ==============================================================================
+// Program: ITextParser.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of line splitting, whitespace stripping, and key-value mapping.
+//          Inputs: Multi-line text buffers.
+//          Outputs: Parsed token lists and section key maps.
+//          Algorithm: State machine parser handling comments, quotes, and escape sequences.
+// ==============================================================================
+
 #include "ITextParser.h"
 #include "IDataStream.h"
 
+// ---------------------------------------------------------------------------
+// Constructor: Binds text stream and initializes parser cursor
+// ---------------------------------------------------------------------------
 ITextParser::ITextParser()
 :m_stream(NULL)
 {

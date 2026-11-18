@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IInterlockedLong.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Header specification for atomic hardware interlocked integer operations.
+//          Inputs: 32-bit and 64-bit integer values subject to concurrent modification.
+//          Outputs: Lock-free atomically incremented/decremented values.
+//          Architecture: Ultra-low latency synchronization for SKSE64 reference counting.
+// ==============================================================================
+
 #pragma once
 
 struct IInterlockedLong

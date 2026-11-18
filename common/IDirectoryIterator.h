@@ -1,5 +1,18 @@
+// ==============================================================================
+// Program: IDirectoryIterator.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Filesystem directory enumeration header for plugin and asset discovery.
+//          Inputs: Search wildcards and directory path strings.
+//          Outputs: File attributes, names, sizes, and directory traversal tokens.
+//          Architecture: SKSE64 plugin scanner locating runtime DLL extensions.
+// ==============================================================================
+
 #pragma once
 
+// ---------------------------------------------------------------------------
+// IDirectoryIterator: Encapsulates Win32 FindFirstFile/FindNextFile handles
+// ---------------------------------------------------------------------------
 class IDirectoryIterator
 {
 public:

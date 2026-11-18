@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IConsole.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of console window management, stdout redirection, and text colors.
+//          Inputs: Win32 AllocConsole API calls and CRT stream re-associations.
+//          Outputs: Active console window bound to stdin/stdout/stderr.
+//          Design Rationale: Intercepts CRT descriptors to support printf/cout debugging.
+// ==============================================================================
+
 #include "common/IConsole.h"
 #include <cstdarg>
 #include <cstring>

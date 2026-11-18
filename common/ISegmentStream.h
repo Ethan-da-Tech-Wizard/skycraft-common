@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: ISegmentStream.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Sub-stream windowing decorator restricting I/O to a slice of a backing stream.
+//          Inputs: Backing IDataStream pointer, segment base offset, and segment size.
+//          Outputs: Bounded stream I/O preventing reads/writes past segment boundaries.
+//          Architecture: Asset decompression and chunked archive partition streaming.
+// ==============================================================================
+
 #pragma once
 
 #include "common/IDataStream.h"
@@ -6,6 +16,9 @@
 /**
  *	An stream composed of many non-contiguous segments of a larger stream
  */
+// ---------------------------------------------------------------------------
+// ISegmentStream: Windowed stream wrapper enforcing virtual offset boundaries
+// ---------------------------------------------------------------------------
 class ISegmentStream : public IDataStream
 {
 	public:

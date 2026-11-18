@@ -1,9 +1,24 @@
+# ==============================================================================
+# Program: generate_cmake.py
+# Programmer: Ethan-da-Tech-Wizard
+# Last Modified: November 18, 2026
+# Purpose: Automated CMake build configuration generator for SKSE64 common library.
+#          Inputs: Directory structure, source file trees (.cpp/.h), and template files.
+#          Outputs: Synchronized CMakeLists.txt and cmake/*.cmake build manifests.
+#          Design Rationale: Maintains unified cross-platform build definitions across
+#                            Visual Studio solution versions and modern CMake environments.
+# ==============================================================================
+
+# Python standard system and filesystem manipulation libraries for walking source trees
 import os
 
 HEADER_TYPES = (".h", ".hpp", ".hxx", ".inl")
 SOURCE_TYPES = (".c", ".cpp", ".cxx")
 ALL_TYPES = HEADER_TYPES + SOURCE_TYPES
 
+# ---------------------------------------------------------------------------
+# main: Scans common directory and regenerates CMakeLists.txt sourcelists
+# ---------------------------------------------------------------------------
 def main():
 	cur = os.path.dirname(os.path.realpath(__file__))
 	os.chdir(cur)

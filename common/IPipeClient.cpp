@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IPipeClient.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of named pipe connection handshakes and synchronous message transfer.
+//          Inputs: Pipe address strings and transmission buffers.
+//          Outputs: Received message payloads and response codes.
+//          Algorithm: Win32 WaitNamedPipe and CreateFile IPC communication.
+// ==============================================================================
+
 #include "IPipeClient.h"
 
 IPipeClient::IPipeClient()
@@ -11,6 +21,9 @@ IPipeClient::~IPipeClient()
 	Close();
 }
 
+// ---------------------------------------------------------------------------
+// Open: Connects to server named pipe using Win32 CreateFile
+// ---------------------------------------------------------------------------
 bool IPipeClient::Open(const char * name)
 {
 	Close();

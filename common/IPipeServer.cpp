@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IPipeServer.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of named pipe server instance creation and connection loops.
+//          Inputs: Pipe configuration flags (PIPE_TYPE_MESSAGE, etc.).
+//          Outputs: Client connection acceptance and message pump.
+//          Algorithm: Win32 CreateNamedPipe and ConnectNamedPipe synchronization.
+// ==============================================================================
+
 #include "IPipeServer.h"
 
 IPipeServer::IPipeServer()

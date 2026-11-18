@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IFileStream.cpp
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Implementation of Win32 CreateFile, ReadFile, WriteFile, and directory creation.
+//          Inputs: File paths and binary memory buffers.
+//          Outputs: Synchronous disk writes and sector-aligned file reads.
+//          Algorithm: Win32 SetFilePointer and recursive MakeAllDirs path creation.
+// ==============================================================================
+
 #include "IFileStream.h"
 #include "IDebugLog.h"
 #include "IErrors.h"
@@ -23,6 +33,9 @@ IFileStream::~IFileStream()
 /**
  *	Opens a file for reading and attaches it to the stream
  */
+// ---------------------------------------------------------------------------
+// Open: Opens existing file for reading using Win32 CreateFile
+// ---------------------------------------------------------------------------
 bool IFileStream::Open(const char * name)
 {
 	Close();
@@ -88,6 +101,9 @@ bool IFileStream::BrowseOpen(void)
  *	Creates a new file for writing, overwriting any previously-existing files,
  *	and attaches it to the stream
  */
+// ---------------------------------------------------------------------------
+// Create: Creates or truncates destination file for binary writing
+// ---------------------------------------------------------------------------
 bool IFileStream::Create(const char * name)
 {
 	Close();

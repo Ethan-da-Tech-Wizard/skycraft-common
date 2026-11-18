@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IArchive.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Header specification for Bethesda Archive (BSA) asset container parsing.
+//          Inputs: Binary BSA file streams, directory records, and file hash keys.
+//          Outputs: Decompressed asset memory buffers and directory hierarchies.
+//          Architecture: Foundation asset streaming interface for SKSE64 runtime.
+// ==============================================================================
+
 #pragma once
 
 #include "common/IDataStream.h"
@@ -10,6 +20,9 @@
  *	
  *	This class implements reading and instantiating objects from an object archive.
  */
+// ---------------------------------------------------------------------------
+// IArchive: Abstract base class managing archive headers and file enumeration
+// ---------------------------------------------------------------------------
 class IArchive
 {
 	public:
@@ -39,6 +52,7 @@ class IArchive
 			UInt32	nameTableLength;
 		};
 
+		// BSA archive header layout describing version, folder count, and flag bitmasks
 		struct HeaderEntry
 		{
 			UInt32	typeID;

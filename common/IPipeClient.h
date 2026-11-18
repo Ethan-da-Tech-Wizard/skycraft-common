@@ -1,7 +1,20 @@
+// ==============================================================================
+// Program: IPipeClient.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: Win32 Named Pipe client communication interface header.
+//          Inputs: Pipe endpoint name (\\.\pipe\skse) and request payloads.
+//          Outputs: Bidirectional duplex stream connection to host server process.
+//          Architecture: IPC conduit between external managers and SKSE64 runtime.
+// ==============================================================================
+
 #pragma once
 
 #include "common/IPipeServer.h"
 
+// ---------------------------------------------------------------------------
+// IPipeClient: Named pipe client managing connection lifecycle and stream I/O
+// ---------------------------------------------------------------------------
 class IPipeClient
 {
 public:

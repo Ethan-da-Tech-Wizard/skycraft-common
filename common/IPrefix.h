@@ -1,3 +1,13 @@
+// ==============================================================================
+// Program: IPrefix.h
+// Programmer: Ethan-da-Tech-Wizard
+// Last Modified: November 18, 2026
+// Purpose: String prefix matching, token trie, and string classification utility header.
+//          Inputs: Text strings, candidate prefixes, and case-sensitivity flags.
+//          Outputs: Match boolean results and stripped suffix substrings.
+//          Architecture: Command and configuration key parsing for SKSE64.
+// ==============================================================================
+
 #pragma once
 
 // 4018 - signed/unsigned mismatch
