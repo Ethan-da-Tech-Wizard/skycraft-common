@@ -113,9 +113,6 @@ void ITimer::Start(void)
  *
  * @return Elapsed time in seconds (double). The tick delta is computed in 32-bit milliseconds and wraps after ~49 days.
  */
-// Seconds since Start(). If the QPC and multimedia-timer readings disagree by
-// more than one second, QPC is considered unreliable and the (millisecond)
-// multimedia value is returned instead; the event is counted.
 double ITimer::GetElapsedTime(void)
 {
 	UInt64	qpcNow = GetQPC();
@@ -150,8 +147,6 @@ double ITimer::GetElapsedTime(void)
  *
  * @return Raw high-resolution counter value (counts, not seconds).
  */
-// Reads QPC and enforces monotonicity: if the counter appears to jump backwards
-// the value is replaced by last+1 and the event is counted.
 UInt64 ITimer::GetQPC(void)
 {
 	UInt64	now;

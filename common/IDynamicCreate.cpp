@@ -17,7 +17,7 @@
 
 #if ENABLE_IDYNAMICCREATE
 
-/// The one global registry instance (note: the class's own storage `theClassRegistry` is a static member).
+/// Global registry object. The class keeps its table in a static member (theClassRegistry), so this instance carries no data of its own.
 IClassRegistry	_gClassRegistry;
 
 /// Nothing to do: all state is the static map.
