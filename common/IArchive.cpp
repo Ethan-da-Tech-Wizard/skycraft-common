@@ -124,13 +124,13 @@ void IArchive::Dispose(void)
 {
 	if(entries)
 	{
-		delete entries;
+		delete [] entries;
 		entries = NULL;
 	}
 
 	if(nameTable)
 	{
-		delete nameTable;
+		delete [] nameTable;
 		nameTable = NULL;
 	}
 }
