@@ -19,6 +19,7 @@
 
 /** Constructs an empty bitstring with no storage (call Alloc() before use). */
 #include "ITypes.h"
+#include <cstring>	// std::memset used by Bitstring::Clear (not guaranteed to come in via <cmath>)
 
 Bitstring::Bitstring()
 :data(NULL)
