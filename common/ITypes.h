@@ -33,9 +33,6 @@
 // NOTE: UInt32/SInt32 are based on `long`, which is 32 bits under Windows
 // (MSVC, the only supported target) but 64 bits on LP64 platforms such as Linux
 // and macOS, so these headers must be built with a Windows ABI.
-// NOTE: UInt32/SInt32 are based on `long`, which is 32 bits under Windows
-// (MSVC, the only supported target) but 64 bits on LP64 platforms such as Linux
-// and macOS, so these headers must be built with a Windows ABI.
 typedef unsigned char		UInt8;		//!< An unsigned 8-bit integer value
 typedef unsigned short		UInt16;		//!< An unsigned 16-bit integer value
 typedef unsigned long		UInt32;		//!< An unsigned 32-bit integer value
