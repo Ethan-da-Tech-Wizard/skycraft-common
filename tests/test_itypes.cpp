@@ -87,10 +87,30 @@ static void TestVector2Reverse(void)
 	CHECK(FloatEqual(w.x, 0.0f) && FloatEqual(w.y, -5.0f), "Vector2::Reverse of (0,5) is (0,-5)");
 }
 
+// Dispose() may be called explicitly and then again by the destructor (or by
+// a second explicit call). Before the fix the pointer was not reset, so the
+// second delete[] freed the same block twice (heap corruption / abort).
+static void TestBitstringDoubleDispose(void)
+{
+	Bitstring	bits(16);
+	bits.Clear();
+	bits.Set(9);
+	CHECK(bits.IsSet(9) && bits.IsClear(8), "Bitstring set/test sanity");
+
+	bits.Dispose();
+	bits.Dispose();		// must be a no-op, not a double free
+
+	// Re-allocating after Dispose must work and the destructor then frees once.
+	bits.Alloc(8);
+	bits.Clear();
+	CHECK(bits.IsClear(7), "Bitstring usable again after Dispose + Alloc");
+}
+
 int main(void)
 {
 	TestTimeSetToNow();
 	TestVector2Reverse();
+	TestBitstringDoubleDispose();
 
 	if(failures)
 	{

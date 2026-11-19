@@ -14,22 +14,22 @@
 // range-checked with ASSERT_STR, which calls _AssertionFailed (IErrors.cpp)
 // and does not return.
 //
-// Known limits: the default-constructed object has no storage and an
-// uninitialised length; Clear() or any bit access on it is invalid until Alloc().
+// Known limits: a default-constructed or disposed object has no storage
+// (length 0); bit access on it asserts and Clear() must not be called until Alloc().
 
 /** Constructs an empty bitstring with no storage (call Alloc() before use). */
 #include "ITypes.h"
 #include <cstring>	// std::memset used by Bitstring::Clear (not guaranteed to come in via <cmath>)
 
 Bitstring::Bitstring()
-:data(NULL)
+:data(NULL), length(0)
 {
 	
 }
 
 /** Constructs a bitstring with room for @p inLength bits (see Alloc()). */
 Bitstring::Bitstring(UInt32 inLength)
-:data(NULL)
+:data(NULL), length(0)
 {
 	Alloc(inLength);
 }
@@ -56,10 +56,15 @@ void Bitstring::Alloc(UInt32 inLength)
 	data = new UInt8[length];
 }
 
-/** Frees the storage array (the pointer is not reset afterwards). */
+/** Frees the storage array and resets the object to the empty state; safe to call repeatedly. */
 void Bitstring::Dispose(void)
 {
 	delete [] data;
+
+	// Reset so a second Dispose() (or the destructor after an explicit Dispose())
+	// does not free the same block again, and Clear() cannot touch freed memory.
+	data = NULL;
+	length = 0;
 }
 
 /** Clears every bit to 0. Requires prior Alloc(). */
