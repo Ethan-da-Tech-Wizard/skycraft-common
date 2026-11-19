@@ -360,9 +360,8 @@ class Vector2
 		void	Normalize(void)						{ float mag = Magnitude(); x /= mag; y /= mag; }
 		float	Magnitude(void)						{ return sqrt(x*x + y*y); }
 
-		// Despite the name, this rotates the vector by 90 degrees ((x,y) -> (-y,x)),
-		// it does not negate it.
-		void	Reverse(void)						{ float temp = -x; x = -y; y = temp; }
+		// Negates both components: (x,y) -> (-x,-y), the vector pointing the opposite way.
+		void	Reverse(void)						{ x = -x; y = -y; }
 
 		void	Scale(float scale)					{ x *= scale; y *= scale; }
 

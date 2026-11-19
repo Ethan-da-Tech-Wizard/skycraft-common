@@ -66,9 +66,31 @@ static void TestTimeSetToNow(void)
 	CHECK(matchesBefore || matchesAfter, "SetToNow stores the current local time (not the old 1:02:03 stub)");
 }
 
+// Reverse() is documented by its name as negation: (x, y) -> (-x, -y).
+// The old implementation rotated by 90 degrees ((x, y) -> (-y, x)).
+static void TestVector2Reverse(void)
+{
+	Vector2	v(3.0f, 4.0f);
+	v.Reverse();
+
+	CHECK(FloatEqual(v.x, -3.0f), "Vector2::Reverse negates x");
+	CHECK(FloatEqual(v.y, -4.0f), "Vector2::Reverse negates y");
+
+	// Reversing twice restores the original vector.
+	v.Reverse();
+	CHECK(FloatEqual(v.x, 3.0f) && FloatEqual(v.y, 4.0f), "Vector2::Reverse twice is the identity");
+
+	// The magnitude is preserved by negation (a rotation would also keep it, so
+	// the two component checks above are what distinguish the cases).
+	Vector2	w(0.0f, 5.0f);
+	w.Reverse();
+	CHECK(FloatEqual(w.x, 0.0f) && FloatEqual(w.y, -5.0f), "Vector2::Reverse of (0,5) is (0,-5)");
+}
+
 int main(void)
 {
 	TestTimeSetToNow();
+	TestVector2Reverse();
 
 	if(failures)
 	{
