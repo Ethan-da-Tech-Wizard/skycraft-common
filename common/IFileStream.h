@@ -5,6 +5,9 @@
 /**
  *	An input file stream
  */
+// Win32 file implementation of IDataStream (HANDLE based). Open() reads an
+// existing file, Create() makes/truncates one; the Browse* variants show the
+// standard file dialogs. Close() is also run by the destructor.
 class IFileStream : public IDataStream
 {
 	public:
@@ -29,7 +32,9 @@ class IFileStream : public IDataStream
 		// can truncate. implicitly seeks to the end of the file
 		void	SetLength(UInt64 length);
 
+		// Create every missing directory in `path`.
 		static void	MakeAllDirs(const char * path);
+		// Returns a pointer to the file-name part inside `path` (no copy is made).
 		static char * ExtractFileName(char * path);
 
 	protected:
