@@ -10,15 +10,21 @@
 
 #pragma once
 
+
 #include <map>
 #include "common/IDataStream.h"
 #include "common/IErrors.h"
 
+// Dynamic class creation (create an object by numeric id or class name, and construct it from a stream)
+// is compiled out: everything below is inside #if ENABLE_IDYNAMICCREATE. The original authors
+// disabled it because it breaks Visual Studio edit-and-continue and nothing uses it. Original reason kept below.
+// this screws with edit-and-continue and we don't use it
 // this screws with edit-and-continue and we don't use it
 #define ENABLE_IDYNAMICCREATE 0
 
 #if ENABLE_IDYNAMICCREATE
 
+// Macro layer: DYNAMIC_DECLARE/DYNAMIC_DEFINE give a class a static type descriptor so it can be created by name.
 //! Get a pointer to the IDynamicType for a class.
 //! @note This is not a function; the parameter must be constant.
 #define GetDynType(name)	(&(##name##::__DYN_DynamicType))
