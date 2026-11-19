@@ -8,6 +8,7 @@
 //          Algorithm: 64-bit integer timestamp subtraction divided by clock frequency.
 // ==============================================================================
 
+
 #include "ITimer.h"
 
 // Design: elapsed time normally comes from the high-resolution counter (QPC),
@@ -17,6 +18,10 @@
 // QueryPerformanceCounter is very accurate, but hardware bugs can cause it to return inaccurate results
 // this code uses multimedia timers to check for glitches in QPC
 
+// Shared state, one copy for all ITimer objects (they all read the same hardware counter):
+// s_secondsPerCount = 1 / QPC frequency; s_timecaps = multimedia timer limits; s_setTime = whether
+// timeBeginPeriod succeeded (so DeInit knows to undo it); s_lastQPC / s_hasLastQPC = previous QPC sample used
+// for the monotonic check; s_qpcWrapMargin = backwards-jump threshold; s_qpcWrapCount / s_qpcInaccurateCount = diagnostics.
 double		ITimer::s_secondsPerCount = 0;
 TIMECAPS	ITimer::s_timecaps = { 0 };
 bool		ITimer::s_setTime = false;
@@ -26,12 +31,14 @@ bool		ITimer::s_hasLastQPC = false;
 UInt32		ITimer::s_qpcWrapCount = 0;
 UInt32		ITimer::s_qpcInaccurateCount = 0;
 
+/// Initialise the shared timer state (once per process) and zero this timer's base values; call Start() before reading elapsed time.
 ITimer::ITimer()
 :m_qpcBase(0), m_tickBase(0)
 {
 	Init();
 }
 
+/// Nothing per-instance to release; call DeInit() once at shutdown to restore the multimedia timer period.
 ITimer::~ITimer()
 {
 
@@ -44,6 +51,7 @@ void ITimer::Init(void)
 {
 	if(!s_secondsPerCount)
 	{
+		// init qpc: counts per second of the high-resolution counter (typically ~10 MHz). Its absence is fatal because everything else depends on it.
 		// init qpc
 		UInt64	countsPerSecond;
 		BOOL res = QueryPerformanceFrequency((LARGE_INTEGER *)&countsPerSecond);
@@ -58,6 +66,7 @@ void ITimer::Init(void)
 		_MESSAGE("s_qpcWrapMargin: %016I64X", s_qpcWrapMargin);
 		_MESSAGE("wrap time: %fs", ((double)0xFFFFFFFFFFFFFFFF) * s_secondsPerCount);
 
+		// init multimedia timer: ask for the finest period the system supports (usually 1 ms) so timeGetTime() is precise enough to cross-check QPC.
 		// init multimedia timer
 		timeGetDevCaps(&s_timecaps, sizeof(s_timecaps));
 
@@ -69,6 +78,7 @@ void ITimer::Init(void)
 	}
 }
 
+/// Undo Init(): restore the timer period and reset state so a later Init() starts clean. Call once at shutdown.
 void ITimer::DeInit(void)
 {
 	if(s_secondsPerCount)
@@ -86,6 +96,7 @@ void ITimer::DeInit(void)
 	}
 }
 
+
 // ---------------------------------------------------------------------------
 // Start: Samples initial timestamp using Win32 QueryPerformanceCounter
 // ---------------------------------------------------------------------------
@@ -95,14 +106,19 @@ void ITimer::Start(void)
 	m_tickBase = timeGetTime();
 }
 
-// Seconds since Start(). If the QPC and multimedia-timer readings disagree by
-// more than one second, QPC is considered unreliable and the (millisecond)
-// multimedia value is returned instead; the event is counted.
+/**
+ * Seconds since Start(). If the QPC and multimedia-timer readings disagree by
+ * more than one second, QPC is considered unreliable and the (millisecond)
+ * multimedia value is returned instead; the event is counted.
+ *
+ * @return Elapsed time in seconds (double). The tick delta is computed in 32-bit milliseconds and wraps after ~49 days.
+ */
 double ITimer::GetElapsedTime(void)
 {
 	UInt64	qpcNow = GetQPC();
 	UInt32	tickNow = timeGetTime();
 
+	// Unsigned subtraction keeps the deltas right across counter wrap.
 	UInt64	qpcDelta = qpcNow - m_qpcBase;
 	UInt64	tickDelta = tickNow - m_tickBase;
 
@@ -112,6 +128,7 @@ double ITimer::GetElapsedTime(void)
 
 	if(qpcTickDelta < 0) qpcTickDelta = -qpcTickDelta;
 
+	// if they differ by more than one second, something's wrong, return
 	// if they differ by more than one second, something's wrong, return
 	if(qpcTickDelta > 1)
 	{
@@ -124,8 +141,12 @@ double ITimer::GetElapsedTime(void)
 	}
 }
 
-// Reads QPC and enforces monotonicity: if the counter appears to jump backwards
-// the value is replaced by last+1 and the event is counted.
+/**
+ * Reads QPC and enforces monotonicity: if the counter appears to jump backwards
+ * the value is replaced by last+1 and the event is counted.
+ *
+ * @return Raw high-resolution counter value (counts, not seconds).
+ */
 UInt64 ITimer::GetQPC(void)
 {
 	UInt64	now;
@@ -134,10 +155,12 @@ UInt64 ITimer::GetQPC(void)
 
 	if(s_hasLastQPC)
 	{
+		// Unsigned delta: a backwards step appears as a huge positive number, above the margin computed in Init().
 		UInt64	delta = now - s_lastQPC;
 
 		if(delta > s_qpcWrapMargin)
 		{
+			// we've gone back in time, return a kludged value
 			// we've gone back in time, return a kludged value
 
 			s_lastQPC = now;
@@ -151,6 +174,7 @@ UInt64 ITimer::GetQPC(void)
 		}
 	}
 	else
+	// First sample: nothing to compare with yet.
 	{
 		s_hasLastQPC = true;
 		s_lastQPC = now;

@@ -8,11 +8,16 @@
 //          Algorithm: Mutex-guarded vsnprintf formatting with timestamp prefixes.
 // ==============================================================================
 
+
 #include "common/IDebugLog.h"
 #include <share.h>
 #include "common/IFileStream.h"
 #include <shlobj.h>
 
+// Logger state lives in statics so the single global `gLog` and any other IDebugLog object share one file.
+// logLevel: least important level written to the file (default: everything incl. debug).
+// printLevel: least important level also echoed to stdout (default: up to kLevel_Message).
+// autoFlush is on by default so the log survives a crash.
 std::FILE			* IDebugLog::logFile = NULL;
 char				IDebugLog::sourceBuf[16] = { 0 };
 char				IDebugLog::headerText[16] = { 0 };
@@ -25,31 +30,43 @@ bool				IDebugLog::autoFlush = true;
 IDebugLog::LogLevel	IDebugLog::logLevel = IDebugLog::kLevel_DebugMessage;
 IDebugLog::LogLevel	IDebugLog::printLevel = IDebugLog::kLevel_Message;
 
+/// Create a logger without opening a file; call Open()/OpenRelative() afterwards (used for the global gLog).
 IDebugLog::IDebugLog()
 {
 	//
 }
 
+/// Create a logger and open `name` immediately (see Open for what that means).
 IDebugLog::IDebugLog(const char * name)
 {
 	Open(name);
 }
 
+/// Close the shared log file if one is open.
 IDebugLog::~IDebugLog()
 {
 	if(logFile)
 		fclose(logFile);
 }
 
+/**
+ * Open the log file for writing (the banner below is slightly misleading: mode "w" truncates an existing file).
+ *
+ * @param path Log file path. Opened with write sharing denied so two processes cannot interleave output.
+ * If that fails (for example another copy of the game still holds it) up to 5 alternative names
+ * `<path>0`, `<path>1`, ... are tried; if all fail, logging silently becomes a no-op.
+ */
 // ---------------------------------------------------------------------------
 // Open: Creates or appends to the target log file on disk
 // ---------------------------------------------------------------------------
 void IDebugLog::Open(const char * path)
 {
+	// _SH_DENYWR: others may read the file (so a viewer can tail it) but not write to it.
 	logFile = _fsopen(path, "w", _SH_DENYWR);
 
 	if(!logFile)
 	{
+		// Primary name was locked: fall back to numbered names so a second instance still gets a log.
 		UInt32	id = 0;
 		char	name[1024];
 
@@ -65,6 +82,15 @@ void IDebugLog::Open(const char * path)
 	}
 }
 
+/**
+ * Open a log file inside a Windows known folder (e.g. My Documents), creating folders as needed.
+ *
+ * @param folderID CSIDL_* folder constant (CSIDL_FLAG_CREATE is added so the folder is created).
+ * @param relPath  Path appended to the folder path; must start with a backslash, e.g. "\\My Games\\Skyrim\\SKSE\\skse.log".
+ *
+ * On failure to resolve the folder the process exits (access denied, usually Windows Defender Controlled Folder
+ * Access blocking writes) or ASSERTs, because without a log location there is nothing useful to do.
+ */
 void IDebugLog::OpenRelative(int folderID, const char * relPath)
 {
 	char	path[MAX_PATH];
@@ -72,6 +98,7 @@ void IDebugLog::OpenRelative(int folderID, const char * relPath)
 	HRESULT err = SHGetFolderPath(NULL, folderID | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, path);
 	if(!SUCCEEDED(err))
 	{
+		// E_ACCESSDENIED here is a well-known symptom of Controlled Folder Access: tell the user directly rather than crash.
 		if(err == E_ACCESSDENIED)
 		{
 			MessageBox(nullptr, "Windows Defender Controlled Folder Access is probably blocking access to game config files. Fix your system.", "Script Extender", MB_OK | MB_ICONSTOP);
@@ -82,13 +109,16 @@ void IDebugLog::OpenRelative(int folderID, const char * relPath)
 	}
 	ASSERT_CODE(SUCCEEDED(err), err);
 
+	// strcat_s aborts (invalid-parameter handler) if the combined path exceeds MAX_PATH.
 	strcat_s(path, sizeof(path), relPath);
 
+	// The log folder may not exist yet on a fresh install.
 	IFileStream::MakeAllDirs(path);
 
 	Open(path);
 }
 
+// Layout of each logged line: [indent: 4 spaces per level]['[source  ]' header]message.
 /**
  *	Output a non-formatted message to the log file
  *	
@@ -97,9 +127,11 @@ void IDebugLog::OpenRelative(int folderID, const char * relPath)
  */
 void IDebugLog::Message(const char * message, const char * source, bool newLine)
 {
+	// A new source label replaces the header text used for this and later lines.
 	if(source)
 		SetSource(source);
 
+	// Inside a block, only the first line carries the header; continuation lines are aligned to the next tab stop after it.
 	if(inBlock)
 	{
 		SeekCursor(RoundToTab((indentLevel * 4) + strlen(headerText)));
@@ -117,6 +149,8 @@ void IDebugLog::Message(const char * message, const char * source, bool newLine)
 		NewLine();
 }
 
+// NOTE: formatBuf is one shared static buffer, so these formatted calls are not thread-safe and output is truncated at 8191 chars
+// (vsprintf_s invokes the CRT invalid-parameter handler on overflow).
 /**
  *	Output a formatted message to the log file
  *	
@@ -145,14 +179,23 @@ void IDebugLog::FormattedMessage(const char * fmt, va_list args)
 	Message(formatBuf);
 }
 
+/**
+ * Core entry point behind _ERROR/_WARNING/_MESSAGE/... : write to the file and/or stdout depending on level.
+ *
+ * @param level Severity of this message (lower number = more severe).
+ * @param fmt   printf format string.
+ * @param args  Arguments for the format (consumed once).
+ */
 // ---------------------------------------------------------------------------
 // Log: Formats log message, verifies severity threshold, and writes to disk
 // ---------------------------------------------------------------------------
 void IDebugLog::Log(LogLevel level, const char * fmt, va_list args)
 {
+	// A message is written when its level is at or above the threshold (numerically <=), separately for file and console.
 	bool	log = (level <= logLevel);
 	bool	print = (level <= printLevel);
 
+	// Format once, only if somebody wants it, because formatting is the expensive part.
 	if(log || print)
 		vsprintf_s(formatBuf, sizeof(formatBuf), fmt, args);
 
@@ -163,6 +206,7 @@ void IDebugLog::Log(LogLevel level, const char * fmt, va_list args)
 		printf("%s\n", formatBuf);
 }
 
+/// Same as Log() but does not end the file line (no newline), so several calls build one line. The console copy is also left without a newline.
 void IDebugLog::LogNNL(LogLevel level, const char * fmt, va_list args)
 {
 	bool	log = (level <= logLevel);
@@ -179,11 +223,16 @@ void IDebugLog::LogNNL(LogLevel level, const char * fmt, va_list args)
 }
 
 /**
+ * Set the current message source (shown in the line prefix)
+ * @param source Label; only the first 8 characters appear, and the buffer holds 15.
+ */
+/**
  *	Set the current message source
  */
 void IDebugLog::SetSource(const char * source)
 {
 	strcpy_s(sourceBuf, sizeof(sourceBuf), source);
+	// Template "[        ]<tab>" with 8 blank slots that the label is copied into (the loop below stops at 8 characters).
 	strcpy_s(headerText, sizeof(headerText), "[        ]\t");
 	
 	char	* tgt = headerText + 1;
@@ -193,6 +242,10 @@ void IDebugLog::SetSource(const char * source)
 		*tgt = *src;
 }
 
+/**
+ * Clear the current message source.
+ * NOTE: only sourceBuf is cleared; headerText keeps the old prefix, so later lines still show it until SetSource is called again.
+ */
 /**
  *	Clear the current message source
  */
@@ -218,6 +271,7 @@ void IDebugLog::Outdent(void)
 		indentLevel--;
 }
 
+// Blocks: after OpenBlock() the header is printed once and later messages are aligned to it (see Message).
 /**
  *	Enter a logical block
  */
@@ -248,6 +302,7 @@ void IDebugLog::SetAutoFlush(bool inAutoFlush)
 	autoFlush = inAutoFlush;
 }
 
+// Tabs are used for alignment only when a full tab stop fits, so the file stays compact but columns still line up.
 /**
  *	Print spaces to the log
  *	
@@ -289,6 +344,7 @@ void IDebugLog::PrintText(const char * buf)
 			fflush(logFile);
 	}
 
+	// Track the cursor column (tabs count as the distance to the next stop) so later SeekCursor calls align correctly.
 	const char	* traverse = buf;
 	char		data;
 
@@ -332,6 +388,7 @@ void IDebugLog::SeekCursor(int position)
 /**
  *	Returns the number of spaces a tab would occupy at the current cursor position
  */
+// Tab stops are every 4 columns; (~pos & 3) + 1 is the distance from the cursor to the next stop (1..4).
 int IDebugLog::TabSize(void)
 {
 	return ((~cursorPos) & 3) + 1;
@@ -340,6 +397,7 @@ int IDebugLog::TabSize(void)
 /**
  *	Rounds a number of spaces to the nearest tab
  */
+// Round up to the next multiple of 4 (a tab stop): add 3 and clear the low two bits. (Despite the doc comment it rounds up, not to the nearest.)
 int IDebugLog::RoundToTab(int spaces)
 {
 	return (spaces + 3) & ~3;
