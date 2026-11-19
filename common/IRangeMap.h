@@ -28,9 +28,6 @@
  * ### you can't create a range taking up the entire range of t_key
  * ### (could be done by switching from start/length -> start/end)
  */
-// t_key must be a numeric type
-// ### you can't create a range taking up the entire range of t_key
-// ### (could be done by switching from start/length -> start/end)
 template <typename t_key, typename t_data>
 // ---------------------------------------------------------------------------
 // IRangeMap: Disjoint interval map indexing memory address spans

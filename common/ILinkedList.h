@@ -20,11 +20,6 @@
  * (ILink<T>::s_offset, defined with the ILINK_INIT macro). No allocation is done.
  * ILink members must be public. Because s_offset is one value per T, an object type can embed only one ILink<T> member.
  */
-// Intrusive list support: a type that wants to live in a list embeds an ILink<T>
-// member. The ILink holds next/prev pointers; GetObj()/GetLink() convert between
-// the link and the containing object using the member's byte offset
-// (ILink<T>::s_offset, defined with the ILINK_INIT macro). No allocation is done.
-// ILink members must be public
 template <typename T>
 struct ILink
 {
@@ -44,7 +39,6 @@ struct ILink
 	 * Remove this link from its neighbours and clear its own pointers.
 	 * The neighbours' pointers are repaired, but any list head that pointed at this link is not updated by this method.
 	 */
-	// Remove this link from its neighbours and clear its own pointers.
 	void	Unlink(void)
 	{
 		if(next)	next->prev = prev;
@@ -69,7 +63,6 @@ struct ILink
 	 * Insert `link` immediately before this one.
 	 * @param link Unlinked link to insert; its next/prev are overwritten.
 	 */
-	// Insert `link` immediately before this one.
 	void	LinkBefore(ILink <T> * link)
 	{
 		link->next = this;
@@ -88,7 +81,6 @@ struct ILink
 	 * Insert `link` immediately after this one.
 	 * @param link Unlinked link to insert; its next/prev are overwritten.
 	 */
-	// Insert `link` immediately after this one.
 	void	LinkAfter(ILink <T> * link)
 	{
 		link->next = next;
@@ -112,8 +104,6 @@ struct ILink
  */
 template <typename T>
 
-// Doubly linked list with two sentinel links (begin and end) so insertion never
-// has to special-case an empty list. Call Reset() before use.
 struct ILinkedList
 {
 	// Sentinels: begin.prev and end.next stay NULL; iterate from begin.next until reaching &end.
@@ -133,7 +123,6 @@ struct ILinkedList
 	 * Insert right after the begin sentinel (becomes the first element).
 	 * @param obj Object embedding an ILink<T>, not already in a list.
 	 */
-	// Insert right after the begin sentinel.
 	void	PushFront(T * obj)
 	{
 		ILink <T>	* objLink = ILink <T>::GetLink(obj);
@@ -155,6 +144,4 @@ struct ILinkedList
  * of its ILink member, once per type, in a .cpp file.
  * Example: ILINK_INIT(MyThing, link); for a MyThing that has a public `ILink<MyThing> link;`.
  */
-// Defines the static offset for ILink<T>: pass the containing type and the name
-// of its ILink member, once per type, in a .cpp file.
 #define ILINK_INIT(baseType, memberName)	template <typename T> const UInt32 ILink <T>::s_offset = offsetof(baseType, memberName)
