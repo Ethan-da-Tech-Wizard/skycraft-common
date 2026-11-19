@@ -8,8 +8,10 @@
 //          Algorithm: Win32 CreateThread invocation with static wrapper trampoline.
 // ==============================================================================
 
+
 #include "IThread.h"
 
+/// Create an idle thread object (no OS thread yet; Start() creates it).
 IThread::IThread()
 {
 	mainProc = NULL;
@@ -22,6 +24,8 @@ IThread::IThread()
 
 // The destructor kills a still-running thread (ForceStop) and closes its handle,
 // so a thread should be stopped cooperatively before the object is destroyed.
+// The destructor kills a still-running thread (ForceStop) and closes its handle,
+// so a thread should be stopped cooperatively before the object is destroyed.
 IThread::~IThread()
 {
 	ForceStop();
@@ -32,6 +36,16 @@ IThread::~IThread()
 	}
 }
 
+/**
+ * Start the worker thread.
+ *
+ * @param proc      Function the thread runs; should poll StopRequested() to exit.
+ * @param procParam Opaque pointer handed to proc.
+ *
+ * Does nothing if already running. isRunning is set before CreateThread so a quick second
+ * Start() cannot launch two threads. NOTE: a previous thread handle is overwritten without being
+ * closed when restarting after a finished run.
+ */
 // Create a Win32 thread running _ThreadProc, which calls the supplied function.
 // Does nothing if already running.
 void IThread::Start(MainProcPtr proc, void * procParam)
@@ -48,6 +62,11 @@ void IThread::Start(MainProcPtr proc, void * procParam)
 	}
 }
 
+/**
+ * Ask the thread to stop (cooperative).
+ *
+ * Only sets a flag (stopRequested) that the thread's function is expected to poll; it does not interrupt the thread.
+ */
 // Cooperative stop: only sets a flag (stopRequested) that the thread's
 // function is expected to poll; it does not interrupt the thread.
 void IThread::Stop(void)
@@ -58,6 +77,12 @@ void IThread::Stop(void)
 	}
 }
 
+/**
+ * Terminate the thread immediately.
+ *
+ * TerminateThread is a last resort: it does not run cleanup code and can leave
+ * locks held or memory leaked.
+ */
 // TerminateThread is a last resort: it does not run cleanup code and can leave
 // locks held or memory leaked.
 void IThread::ForceStop(void)
@@ -70,6 +95,14 @@ void IThread::ForceStop(void)
 	}
 }
 
+/**
+ * Trampoline: Win32 needs a plain function, so the IThread pointer is passed as
+ * the parameter and the user's callback is invoked from here. isRunning is
+ * cleared when the callback returns.
+ *
+ * @param param The IThread* given to CreateThread.
+ * @return Thread exit code (always 0).
+ */
 // Trampoline: Win32 needs a plain function, so the IThread pointer is passed as
 // the parameter and the user's callback is invoked from here. isRunning is
 // cleared when the callback returns.
