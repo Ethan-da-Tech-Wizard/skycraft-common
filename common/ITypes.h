@@ -25,6 +25,7 @@
 // the address of an automatic variable); other compilers ignore it.
 #pragma warning(disable: 4221)
 #include <cmath>
+#include <ctime>	// time(), localtime_r / localtime_s for Time::SetToNow
 
 // Sized types. Names follow the SKSE convention: UIntN / SIntN are unsigned /
 // signed N-bit integers, Float32 / Float64 are IEEE floats. The comments on
@@ -288,8 +289,8 @@ class Bitstring
 /**
  *	Time storage
  */
-// SetToNow() below is an unfinished stub: it just stores 1:02:03 and does not
-// read the clock.
+// SetToNow() reads the local clock (localtime_s on Windows, localtime_r elsewhere,
+// both thread-safe).
 class Time
 {
 	public:
@@ -298,9 +299,20 @@ class Time
 		
 		//! Deinitialize the class
 		void	Clear(void)			{ seconds = minutes = hours = 0; hasData = false; }
-		//! Sets the class to the current time
-		//! @todo implement this
-		void	SetToNow(void)		{ Set(1, 2, 3); }
+		//! Sets the class to the current local time (hours, minutes, seconds; the date is ignored)
+		void	SetToNow(void)
+		{
+			time_t	now = ::time(NULL);
+			struct tm	local;
+
+#ifdef _WIN32
+			localtime_s(&local, &now);
+#else
+			localtime_r(&now, &local);
+#endif
+
+			Set((UInt8)local.tm_sec, (UInt8)local.tm_min, (UInt8)local.tm_hour);
+		}
 		
 		//! Sets the class to the specified time
 		void	Set(UInt8 inS, UInt8 inM, UInt8 inH)

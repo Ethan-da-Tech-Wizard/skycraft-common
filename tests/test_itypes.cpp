@@ -44,8 +44,31 @@ static int failures = 0;
 // Records one failed expectation without stopping, so a single run reports every problem.
 #define CHECK(cond, msg) do { if(!(cond)) { std::fprintf(stderr, "FAIL: %s\n", msg); failures++; } } while(0)
 
+// Time::SetToNow must read the real clock. The clock is sampled before and
+// after the call and the result must match one of the two samples (they can
+// differ if a second boundary passes between them).
+static void TestTimeSetToNow(void)
+{
+	time_t		before = std::time(NULL);
+	Time		t;
+	t.SetToNow();
+	time_t		after = std::time(NULL);
+
+	CHECK(t.IsSet(), "SetToNow marks the Time as set");
+
+	struct tm	b, a;
+	localtime_r(&before, &b);
+	localtime_r(&after, &a);
+
+	bool	matchesBefore =	t.GetHours() == b.tm_hour && t.GetMinutes() == b.tm_min && t.GetSeconds() == b.tm_sec;
+	bool	matchesAfter =	t.GetHours() == a.tm_hour && t.GetMinutes() == a.tm_min && t.GetSeconds() == a.tm_sec;
+
+	CHECK(matchesBefore || matchesAfter, "SetToNow stores the current local time (not the old 1:02:03 stub)");
+}
+
 int main(void)
 {
+	TestTimeSetToNow();
 
 	if(failures)
 	{
