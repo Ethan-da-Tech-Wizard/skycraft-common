@@ -12,6 +12,11 @@
 
 #include "common/ICriticalSection.h"
 
+// IMemPool<T, size>: a fixed-capacity pool of T objects that lives inside the
+// pool object itself (no heap use). Unused slots form a free list; slots in use
+// form an "allocated" list so the pool can be iterated and cleared. Objects are
+// constructed in place with placement new on Allocate() and destroyed on Free().
+// Not thread-safe (see IThreadSafeBasicMemPool). `size` must be >= 1.
 template <typename T, UInt32 size>
 // ---------------------------------------------------------------------------
 // IMemPool: Pre-allocated memory pool managing free-lists of fixed-size blocks
@@ -27,6 +32,8 @@ public:
 
 	~IMemPool()	{ Clear(); }
 
+	// Chain every slot into the free list (slot i points at slot i+1) and mark
+	// nothing as allocated. NOTE: this does not run destructors of live objects.
 	void	Reset(void)
 	{
 		for(UInt32 i = 0; i < size - 1; i++)
@@ -39,6 +46,9 @@ public:
 		m_alloc = NULL;
 	}
 
+	// Pop a slot from the free list, push it on the allocated list, construct a T in
+	// it with its default constructor and return it; returns NULL when the pool is
+	// full (callers must check).
 	T *		Allocate(void)
 	{
 		if(m_free)
@@ -58,6 +68,9 @@ public:
 		return NULL;
 	}
 
+	// Unlink the slot from the allocated list. The list is singly linked, so this
+	// is O(n) in the number of live objects. `obj` must have come from this pool and
+	// not already been freed (otherwise the search below runs off the list).
 	void	Free(T * obj)
 	{
 		PoolItem	* item = reinterpret_cast <PoolItem *>(obj);
@@ -82,6 +95,8 @@ public:
 
 	UInt32	GetSize(void)	{ return size; }
 
+	// Iteration over live objects: Begin() returns the most recently allocated one
+	// and Next() walks toward the oldest. Returns NULL at the end.
 	T *		Begin(void)
 	{
 		T	* result = NULL;
@@ -104,6 +119,8 @@ public:
 		return result;
 	}
 
+	// Debug helper: logs the addresses on the free and allocated lists through the
+	// global log (gLog).
 	void	Dump(void)
 	{
 		gLog.Indent();
@@ -133,6 +150,7 @@ public:
 		return m_alloc == NULL;
 	}
 
+	// Frees (and destroys) every live object.
 	void	Clear(void)
 	{
 		while(m_alloc)
@@ -140,6 +158,9 @@ public:
 	}
 
 private:
+	// Storage for one object plus its list link. The raw bytes are kept as UInt8[]
+	// so T is not constructed until Allocate(); reinterpret_cast converts between the
+	// slot and the object because the object is the first member.
 	struct PoolItem
 	{
 		UInt8		obj[sizeof(T)];
@@ -153,6 +174,10 @@ private:
 	PoolItem	* m_alloc;
 };
 
+// IBasicMemPool<T, size>: lighter variant with only a free list. Slots are a
+// union of the object bytes and the free-list pointer, so there is no per-slot
+// overhead while in use, but the pool cannot enumerate live objects and Reset()
+// and the destructor do not destroy them.
 template <typename T, UInt32 size>
 class IBasicMemPool
 {
@@ -192,6 +217,7 @@ public:
 		return NULL;
 	}
 
+	// O(1): destroy the object, then push its slot on the free list.
 	void	Free(T * obj)
 	{
 		obj->~T();
@@ -209,6 +235,8 @@ public:
 		return m_free == NULL;
 	}
 
+	// Slot index of an object (pointer difference from the first slot), useful as a
+	// compact handle; GetByID() converts back.
 	UInt32	GetIdx(T * obj)
 	{
 		PoolItem	* item = reinterpret_cast <PoolItem *>(obj);
@@ -234,6 +262,9 @@ private:
 	PoolItem	* m_free;
 };
 
+// IThreadSafeBasicMemPool<T, size>: IBasicMemPool guarded by a critical section
+// around free-list updates. The lock is released before the constructor runs so
+// object construction does not happen inside the critical section.
 template <typename T, UInt32 size>
 class IThreadSafeBasicMemPool
 {
@@ -322,4 +353,5 @@ private:
 	ICriticalSection	m_mutex;
 };
 
+// Self-test entry point (implemented in IMemPool.cpp).
 void Test_IMemPool(void);

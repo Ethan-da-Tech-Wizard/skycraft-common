@@ -20,6 +20,8 @@ IThread::IThread()
 	threadID = 0;
 }
 
+// The destructor kills a still-running thread (ForceStop) and closes its handle,
+// so a thread should be stopped cooperatively before the object is destroyed.
 IThread::~IThread()
 {
 	ForceStop();
@@ -30,6 +32,8 @@ IThread::~IThread()
 	}
 }
 
+// Create a Win32 thread running _ThreadProc, which calls the supplied function.
+// Does nothing if already running.
 void IThread::Start(MainProcPtr proc, void * procParam)
 {
 	if(!isRunning)
@@ -44,6 +48,8 @@ void IThread::Start(MainProcPtr proc, void * procParam)
 	}
 }
 
+// Cooperative stop: only sets a flag (stopRequested) that the thread's
+// function is expected to poll; it does not interrupt the thread.
 void IThread::Stop(void)
 {
 	if(isRunning)
@@ -52,6 +58,8 @@ void IThread::Stop(void)
 	}
 }
 
+// TerminateThread is a last resort: it does not run cleanup code and can leave
+// locks held or memory leaked.
 void IThread::ForceStop(void)
 {
 	if(isRunning)
@@ -62,6 +70,9 @@ void IThread::ForceStop(void)
 	}
 }
 
+// Trampoline: Win32 needs a plain function, so the IThread pointer is passed as
+// the parameter and the user's callback is invoked from here. isRunning is
+// cleared when the callback returns.
 UInt32 IThread::_ThreadProc(void * param)
 {
 	IThread	* _this = (IThread *)param;

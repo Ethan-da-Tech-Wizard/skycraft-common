@@ -10,6 +10,10 @@
 
 #include "ITimer.h"
 
+// Design: elapsed time normally comes from the high-resolution counter (QPC),
+// but QPC is cross-checked against the coarse multimedia timer (timeGetTime) to
+// catch hardware/driver glitches; the statics below hold state shared by all
+// ITimer instances.
 // QueryPerformanceCounter is very accurate, but hardware bugs can cause it to return inaccurate results
 // this code uses multimedia timers to check for glitches in QPC
 
@@ -33,6 +37,9 @@ ITimer::~ITimer()
 
 }
 
+// One-time setup (guarded by s_secondsPerCount): read the QPC frequency, compute
+// the wrap-detection margin, and raise the multimedia timer resolution to its
+// minimum period. Each Init is paired with a DeInit that restores it.
 void ITimer::Init(void)
 {
 	if(!s_secondsPerCount)
@@ -45,6 +52,8 @@ void ITimer::Init(void)
 
 		s_secondsPerCount = 1.0 / countsPerSecond;
 
+		// A "backwards" step shows up as a huge unsigned delta; any delta above
+		// -(60 seconds worth of counts) is treated as time moving backwards.
 		s_qpcWrapMargin = (UInt64)(-((SInt64)(countsPerSecond * 60)));	// detect if we've wrapped around by a delta greater than this - also limits max time
 		_MESSAGE("s_qpcWrapMargin: %016I64X", s_qpcWrapMargin);
 		_MESSAGE("wrap time: %fs", ((double)0xFFFFFFFFFFFFFFFF) * s_secondsPerCount);
@@ -86,6 +95,9 @@ void ITimer::Start(void)
 	m_tickBase = timeGetTime();
 }
 
+// Seconds since Start(). If the QPC and multimedia-timer readings disagree by
+// more than one second, QPC is considered unreliable and the (millisecond)
+// multimedia value is returned instead; the event is counted.
 double ITimer::GetElapsedTime(void)
 {
 	UInt64	qpcNow = GetQPC();
@@ -112,6 +124,8 @@ double ITimer::GetElapsedTime(void)
 	}
 }
 
+// Reads QPC and enforces monotonicity: if the counter appears to jump backwards
+// the value is replaced by last+1 and the event is counted.
 UInt64 ITimer::GetQPC(void)
 {
 	UInt64	now;

@@ -12,10 +12,17 @@
 
 #include "common/IErrors.h"
 
+// MSVC-only pragma that silences warning C4221 (initializing an aggregate with
+// the address of an automatic variable); other compilers ignore it.
 #pragma warning(disable: 4221)
 #include <cmath>
 
 // Fixed-width unsigned and signed 8-bit integer types
+// The typedefs below define the sized types used throughout the SKSE sources
+// (this block covers 8-16-32-64 bit signed/unsigned integers and float/double).
+// NOTE: UInt32/SInt32 are based on `long`, which is 32 bits under Windows
+// (MSVC, the only supported target) but 64 bits on LP64 platforms such as Linux
+// and macOS, so these headers must be built with a Windows ABI.
 typedef unsigned char		UInt8;		//!< An unsigned 8-bit integer value
 typedef unsigned short		UInt16;		//!< An unsigned 16-bit integer value
 typedef unsigned long		UInt32;		//!< An unsigned 32-bit integer value
@@ -27,16 +34,21 @@ typedef signed long long	SInt64;		//!< A signed 64-bit integer value
 typedef float				Float32;	//!< A 32-bit floating point value
 typedef double				Float64;	//!< A 64-bit floating point value
 
+// Sign-extend a 16-bit value held in the low bits of a 32-bit word: if bit 15 is
+// set, fill the upper 16 bits with ones.
 inline UInt32 Extend16(UInt32 in)
 {
 	return (in & 0x8000) ? (0xFFFF0000 | in) : in;
 }
 
+// Same as Extend16 for an 8-bit value.
 inline UInt32 Extend8(UInt32 in)
 {
 	return (in & 0x80) ? (0xFFFFFF00 | in) : in;
 }
 
+// Byte-order helpers: reverse the bytes of 16/32/64-bit integers (used when
+// reading data written with the opposite endianness).
 inline UInt16 Swap16(UInt16 in)
 {
 	return	((in >> 8) & 0x00FF) |
@@ -51,6 +63,7 @@ inline UInt32 Swap32(UInt32 in)
 			((in << 24) & 0xFF000000);
 }
 
+// Swaps each 32-bit half and exchanges the halves.
 inline UInt64 Swap64(UInt64 in)
 {
 	UInt64	temp;
@@ -62,6 +75,7 @@ inline UInt64 Swap64(UInt64 in)
 	return temp;
 }
 
+// In-place byte swap of a float/double by treating its bits as an integer.
 inline void SwapFloat(float * in)
 {
 	UInt32	* temp = (UInt32 *)in;
@@ -76,6 +90,7 @@ inline void SwapDouble(double * in)
 	*temp = Swap64(*temp);
 }
 
+// Runtime endianness test: store 0x1234 and check which byte comes first.
 inline bool IsBigEndian(void)
 {
 	union
@@ -94,15 +109,21 @@ inline bool IsLittleEndian(void)
 	return !IsBigEndian();
 }
 
+// Packs four characters into a 32-bit value, first character in the lowest
+// byte (so the in-memory byte order spells the string on little-endian CPUs).
 #define CHAR_CODE(a, b, c, d)	(((a & 0xFF) << 0) | ((b & 0xFF) << 8) | ((c & 0xFF) << 16) | ((d & 0xFF) << 24))
+// Compile-time (constant expression) byte swaps, usable in initialisers.
 #define MACRO_SWAP16(a)			((((a) & 0x00FF) << 8) | (((a) & 0xFF00) >> 8))
 #define MACRO_SWAP32(a)			((((a) & 0x000000FF) << 24) | (((a) & 0x0000FF00) << 8) | (((a) & 0x00FF0000) >> 8) | (((a) & 0xFF000000) >> 24))
 
+// Packs a version as 12 bits major | 12 bits minor | 8 bits sub-version (bits
+// 31..20, 19..8, 7..0); the following macros extract each field.
 #define VERSION_CODE(primary, secondary, sub)	(((primary & 0xFFF) << 20) | ((secondary & 0xFFF) << 8) | ((sub & 0xFF) << 0))
 #define VERSION_CODE_PRIMARY(in)				((in >> 20) & 0xFFF)
 #define VERSION_CODE_SECONDARY(in)				((in >> 8) & 0xFFF)
 #define VERSION_CODE_SUB(in)					((in >> 0) & 0xFF)
 
+// Packs ARGB into one 32-bit value, 8 bits per channel (alpha in the top byte).
 #define MAKE_COLOR(a, r, g, b)	(((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | ((b & 0xFF) << 0))
 #define COLOR_ALPHA(in)			((in >> 24) & 0xFF)
 #define COLOR_RED(in)			((in >> 16) & 0xFF)
@@ -134,6 +155,9 @@ union VarCombiner
  *	A bitfield.
  */
 template <typename T>
+// Typed set of flag helpers over an integer `field`. Note that the mask
+// parameters are UInt32, so for Bitfield64-sized use the upper bits are not
+// reachable. ExtractField(shift, length) assumes length <= 32.
 class Bitfield
 {
 	public:
@@ -169,6 +193,7 @@ typedef Bitfield <UInt8>	Bitfield8;		//!< An 8-bit bitfield
 typedef Bitfield <UInt16>	Bitfield16;		//!< A 16-bit bitfield
 typedef Bitfield <UInt32>	Bitfield32;		//!< A 32-bit bitfield
 
+// Compile-time checks that the wrappers add no storage over the raw integer.
 STATIC_ASSERT(sizeof(Bitfield8) == 1);
 STATIC_ASSERT(sizeof(Bitfield16) == 2);
 STATIC_ASSERT(sizeof(Bitfield32) == 4);
@@ -203,6 +228,8 @@ class Bitstring
 /**
  *	Time storage
  */
+// Simple hour/minute/second holder. NOTE: SetToNow() is an unfinished stub (it
+// just stores 1:02:03) - it does not read the clock.
 class Time
 {
 	public:
@@ -231,6 +258,7 @@ class Time
 		bool	hasData;
 };
 
+// Tolerance for FloatEqual; absolute (not relative) comparison.
 const float kFloatEpsilon = 0.0001f;
 
 inline bool FloatEqual(float a, float b) { float magnitude = a - b; if(magnitude < 0) magnitude = -magnitude; return magnitude < kFloatEpsilon; }
@@ -253,6 +281,8 @@ class Vector2
 		void	Normalize(void)						{ float mag = Magnitude(); x /= mag; y /= mag; }
 		float	Magnitude(void)						{ return sqrt(x*x + y*y); }
 
+		// Despite the name, this rotates the vector by 90 degrees ((x,y) -> (-y,x)),
+		// it does not negate it.
 		void	Reverse(void)						{ float temp = -x; x = -y; y = temp; }
 
 		void	Scale(float scale)					{ x *= scale; y *= scale; }
@@ -288,6 +318,7 @@ inline Vector2 operator/(const Vector2 & lhs, float rhs)
 	return Vector2(lhs.x / rhs, lhs.y / rhs);
 };
 
+// True if lhs and rhs are equal on every bit selected by mask (`size` bytes).
 inline bool MaskCompare(void * lhs, void * rhs, void * mask, UInt32 size)
 {
 	UInt8	* lhs8 = (UInt8 *)lhs;
@@ -301,6 +332,8 @@ inline bool MaskCompare(void * lhs, void * rhs, void * mask, UInt32 size)
 	return true;
 }
 
+// Operators on Vector3 are component-wise (including * and /), not dot/cross
+// products. The anonymous union lets the same storage be used as x/y/z or d[3].
 class Vector3
 {
 public:

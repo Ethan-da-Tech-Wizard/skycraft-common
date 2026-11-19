@@ -14,6 +14,10 @@
 #include "common/IDataStream.h"
 #include "common/IFilestream.h"
 
+// IDatabase<DataType>: an in-memory table of records keyed by 60-bit ids,
+// stored in a std::map, with Save/Load to an IDataStream or a file. Key 0 is
+// never valid. The top four bits of a key are masked off (kGUIDMask), so a key
+// may carry flags there that the database ignores.
 template <class DataType>
 // ---------------------------------------------------------------------------
 // IDatabase: Index-based record table storage and binary serialization manager
@@ -29,6 +33,7 @@ class IDatabase
 		IDatabase()	{ newKeyHint = 1; }
 		virtual ~IDatabase()	{ }
 
+		// Lookup; returns NULL for key 0 or an unknown key.
 		DataType *	Get(UInt64 key)
 		{
 			key &= kGUIDMask;
@@ -41,6 +46,7 @@ class IDatabase
 			return (iter == theDataMap.end()) ? NULL : &((*iter).second);
 		}
 
+		// Create a record at a caller-chosen key; returns NULL if the key is 0 or already used.
 		DataType *	Alloc(UInt64 key)
 		{
 			key &= kGUIDMask;
@@ -53,6 +59,9 @@ class IDatabase
 			return (iter == theDataMap.end()) ? &theDataMap[key] : NULL;
 		}
 
+		// Create a record at the next free key and return it through *key. Starts at
+		// newKeyHint and, on a collision, looks for the first gap after the occupied
+		// key (wrapping to 1 at the end of the map), so freed ids get reused.
 		DataType *	Alloc(UInt64 * key)
 		{
 			UInt64	newKey = newKeyHint;
@@ -97,6 +106,7 @@ class IDatabase
 			return NULL;
 		}
 
+		// Erase a record and remember its key as the next allocation hint.
 		void		Delete(UInt64 key)
 		{
 			if(key)
@@ -109,6 +119,7 @@ class IDatabase
 			}
 		}
 
+		// Serialisation of the whole table (implemented after the class).
 		void		Save(IDataStream * stream);
 		void		Load(IDataStream * stream);
 
